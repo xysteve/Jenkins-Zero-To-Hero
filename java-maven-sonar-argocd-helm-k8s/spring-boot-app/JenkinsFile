@@ -62,6 +62,7 @@ pipeline {
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
+                    rm -rf pipeline-kubernetes-deployment
 
                    # 克隆目标 repo
                     git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/pipeline-kubernetes-deployment.git
