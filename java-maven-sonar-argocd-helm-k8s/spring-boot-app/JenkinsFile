@@ -54,19 +54,36 @@ pipeline {
     }
     stage('Update Deployment File') {
         environment {
-            GIT_REPO_NAME = "pipeline-kubernetes-deployment"
+            //GIT_REPO_NAME = "pipeline-kubernetes-deployment"
+            //GIT_USER_NAME = "xysteve"
+            GIT_REPO_URL = "https://github.com/xysteve/pipeline-kubernetes-deployment.git"
             GIT_USER_NAME = "xysteve"
-        }
+      }
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                 sh '''
+                     # 克隆目标 repo
+                    git clone https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/pipeline-kubernetes-deployment.git
+                    cd pipeline-kubernetes-deployment
+ 
                     git config user.email "steveny.xyz@gmail.com"
                     git config user.name "Xy"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+
+                    //BUILD_NUMBER=${BUILD_NUMBER}
+                    //sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    //git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
+                    //git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                    //git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+
+                   cp ../java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml ./deployment.yml
+
+                    # 替换镜像版本
+                   sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" deployment.yml
+
+                  # 提交并推送
+                   git add deployment.yml
+                   git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                   git push origin main
                 '''
             }
         }
